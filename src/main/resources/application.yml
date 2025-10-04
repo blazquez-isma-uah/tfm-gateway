@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Apunta al JWKS de tu realm de Keycloak (ajusta host/puerto/realm)
+          jwk-set-uri: http://keycloak:8080/realms/bandas/protocol/openid-connect/certs
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            # Añadiremos filtros propios en el siguiente paso
+                    - RemoveRequestHeader=Cookie
+          routes:
+            - id: users
+              uri: http://users:8081
+              predicates:
+                - Path=/users/**
+
+            - id: events
+              uri: http://events:8082
+              predicates:
+                - Path=/events/**
+
+            - id: scores
+              uri: http://scores:8083
+              predicates:
+                - Path=/scores/**
+
+            - id: surveys
+              uri: http://surveys:8084
+              predicates:
+                - Path=/surveys/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
