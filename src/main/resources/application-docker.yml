@@ -1,0 +1,56 @@
+server:
+  port: 8080 # En Docker, el puerto 8080 del contenedor se mapea al 8080 del host
+
+spring:
+  application:
+    name: gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # En Docker usamos JWKS explícito (no issuer-uri) para evitar problemas de hostname
+          # Apunta al JWKS del Keycloak dentro del entorno dockerizado
+          jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI}
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            # Añadiremos filtros propios en el siguiente paso
+            - RemoveRequestHeader=Cookie
+
+          routes:
+            - id: users
+              uri: ${GATEWAY_USERS_URI}
+              predicates:
+                - Path=${GATEWAY_USERS_PATH}
+                - Path=${GATEWAY_INSTRUMENTS_PATH}
+
+            - id: events
+              uri: ${GATEWAY_EVENTS_URI}
+              predicates:
+                - Path=${GATEWAY_EVENTS_PATH}
+
+            - id: scores
+              uri: ${GATEWAY_SCORES_URI}
+              predicates:
+                - Path=${GATEWAY_SCORES_PATH}
+
+            - id: surveys
+              uri: ${GATEWAY_SURVEYS_URI}
+              predicates:
+                - Path=${GATEWAY_SURVEYS_PATH}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: INFO
+    com.tfm.bandas.gateway: DEBUG
+    org.springframework.security: WARN

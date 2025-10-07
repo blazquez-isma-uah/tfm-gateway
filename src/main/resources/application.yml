@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8085
 
 spring:
   application:
@@ -10,7 +10,7 @@ spring:
       resourceserver:
         jwt:
           # Apunta al JWKS de tu realm de Keycloak (ajusta host/puerto/realm)
-          jwk-set-uri: http://keycloak:8080/realms/bandas/protocol/openid-connect/certs
+          jwk-set-uri: http://localhost:8080/realms/tfm-bandas/protocol/openid-connect/certs
 
   cloud:
     gateway:
@@ -21,27 +21,35 @@ spring:
                     - RemoveRequestHeader=Cookie
           routes:
             - id: users
-              uri: http://users:8081
+              uri: http://localhost:8081
               predicates:
-                - Path=/users/**
+                - Path=/api/users/**
+                - Path=/api/instruments/**
 
             - id: events
-              uri: http://events:8082
+              uri: http://localhost:8083
               predicates:
-                - Path=/events/**
+                - Path=/api/events/**
 
             - id: scores
-              uri: http://scores:8083
+              uri: http://localhost:8082
               predicates:
-                - Path=/scores/**
+                - Path=/api/scores/**
 
             - id: surveys
-              uri: http://surveys:8084
+              uri: http://localhost:8084
               predicates:
-                - Path=/surveys/**
+                - Path=/api/surveys/**
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info
+
+logging:
+  level:
+    root: INFO
+    com.tfm.bandas.gateway: DEBUG
+    org.springframework.security: DEBUG
+
