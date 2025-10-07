@@ -1,5 +1,7 @@
 package com.tfm.bandas.gateway.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 @Component
 public class IdentityPropagationFilter implements GlobalFilter, Ordered {
 
+    private static final Logger log = LoggerFactory.getLogger(LoggingTraceFilter.class);
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain chain) {
         return exchange.getPrincipal()
@@ -25,12 +29,13 @@ public class IdentityPropagationFilter implements GlobalFilter, Ordered {
                 .filter(auth -> auth.getPrincipal() instanceof Jwt)
                 .flatMap(auth -> {
                     Jwt jwt = (Jwt) auth.getPrincipal();
+                    log.debug("[IdentityPropagationFilter] JWT Claims: {}", jwt.getClaims());
                     String userId = jwt.getClaimAsString("sub");
-                    System.out.println("userId: " + userId);
+                    log.debug("[IdentityPropagationFilter] userId: {}", userId);
                     String roles = auth.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
                             .collect(Collectors.joining(","));
-                    System.out.println("roles: " + roles);
+                    log.debug("[IdentityPropagationFilter] userRoles: {}", roles);
                     exchange.getRequest().mutate()
                             .header("X-User-Id", userId != null ? userId : "")
                             .header("X-Roles", roles)

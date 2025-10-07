@@ -37,7 +37,7 @@ public class LoggingTraceFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
         String authUser = exchange.getRequest().getHeaders().getFirst("X-User-Id");
 
-        log.debug("[GW] Incoming request: method={} path={} traceId={} user={}",
+        log.debug("[LoggingTraceFilter] Incoming request: method={} path={} traceId={} user={}",
                 method, path, traceId, authUser != null ? authUser : "anonymous");
 
         String finalTraceId = traceId;
@@ -48,7 +48,7 @@ public class LoggingTraceFilter implements GlobalFilter, Ordered {
                             ? exchange.getResponse().getStatusCode().value()
                             : 0;
 
-                    log.info("[GW] Completed: method={} path={} status={} duration={}ms traceId={}",
+                    log.info("[LoggingTraceFilter] Completed: method={} path={} status={} duration={}ms traceId={}",
                             method, path, statusCode, duration, finalTraceId);
                 })
         );

@@ -20,7 +20,6 @@ spring:
           default-filters:
             # Añadiremos filtros propios en el siguiente paso
             - RemoveRequestHeader=Cookie
-
           routes:
             - id: users
               uri: ${GATEWAY_USERS_URI}
@@ -52,5 +51,5 @@ management:
 logging:
   level:
     root: INFO
+    org.springframework.cloud.gateway: TRACE
     com.tfm.bandas.gateway: DEBUG
-    org.springframework.security: WARN

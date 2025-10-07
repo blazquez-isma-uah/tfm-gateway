@@ -53,3 +53,18 @@ logging:
     com.tfm.bandas.gateway: DEBUG
     org.springframework.security: DEBUG
 
+gateway:
+  users:
+    uri: ${GATEWAY_USERS_URI}
+    path: ${GATEWAY_USERS_PATH}
+  events:
+    uri: ${GATEWAY_EVENTS_URI}
+    path: ${GATEWAY_EVENTS_PATH}
+  scores:
+    uri: ${GATEWAY_SCORES_URI}
+    path: ${GATEWAY_SCORES_PATH}
+  surveys:
+    uri: ${GATEWAY_SURVEYS_URI}
+    path: ${GATEWAY_SURVEYS_PATH}
+  instruments:
+    path: ${GATEWAY_INSTRUMENTS_PATH}
