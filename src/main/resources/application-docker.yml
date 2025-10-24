@@ -13,34 +13,34 @@ spring:
           # Apunta al JWKS del Keycloak dentro del entorno dockerizado
           jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI}
 
-  cloud:
-    gateway:
-      server:
-        webflux:
-          default-filters:
-            # Añadiremos filtros propios en el siguiente paso
-            - RemoveRequestHeader=Cookie
-          routes:
-            - id: users
-              uri: ${GATEWAY_USERS_URI}
-              predicates:
-                - Path=${GATEWAY_USERS_PATH}
-                - Path=${GATEWAY_INSTRUMENTS_PATH}
-
-            - id: events
-              uri: ${GATEWAY_EVENTS_URI}
-              predicates:
-                - Path=${GATEWAY_EVENTS_PATH}
-
-            - id: scores
-              uri: ${GATEWAY_SCORES_URI}
-              predicates:
-                - Path=${GATEWAY_SCORES_PATH}
-
-            - id: surveys
-              uri: ${GATEWAY_SURVEYS_URI}
-              predicates:
-                - Path=${GATEWAY_SURVEYS_PATH}
+#  cloud:
+#    gateway:
+#      server:
+#        webflux:
+#          default-filters:
+#            # Añadiremos filtros propios en el siguiente paso
+#            - RemoveRequestHeader=Cookie
+#          routes:
+#            - id: users
+#              uri: ${GATEWAY_USERS_URI}
+#              predicates:
+#                - Path=${GATEWAY_USERS_PATH}
+#                - Path=${GATEWAY_INSTRUMENTS_PATH}
+#
+#            - id: events
+#              uri: ${GATEWAY_EVENTS_URI}
+#              predicates:
+#                - Path=${GATEWAY_EVENTS_PATH}
+#
+#            - id: scores
+#              uri: ${GATEWAY_SCORES_URI}
+#              predicates:
+#                - Path=${GATEWAY_SCORES_PATH}
+#
+#            - id: surveys
+#              uri: ${GATEWAY_SURVEYS_URI}
+#              predicates:
+#                - Path=${GATEWAY_SURVEYS_PATH}
 
 management:
   endpoints:
@@ -53,3 +53,19 @@ logging:
     root: INFO
     org.springframework.cloud.gateway: TRACE
     com.tfm.bandas.gateway: DEBUG
+
+gateway:
+  instruments:
+    path: ${GATEWAY_INSTRUMENTS_PATH}
+  users:
+    uri: ${GATEWAY_USERS_URI}
+    path: ${GATEWAY_USERS_PATH}
+  events:
+    uri: ${GATEWAY_EVENTS_URI}
+    path: ${GATEWAY_EVENTS_PATH}
+  scores:
+    uri: ${GATEWAY_SCORES_URI}
+    path: ${GATEWAY_SCORES_PATH}
+  surveys:
+    uri: ${GATEWAY_SURVEYS_URI}
+    path: ${GATEWAY_SURVEYS_PATH}
