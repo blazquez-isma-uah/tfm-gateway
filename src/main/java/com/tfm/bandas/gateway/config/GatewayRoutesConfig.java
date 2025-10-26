@@ -13,6 +13,8 @@ public class GatewayRoutesConfig {
     private String usersPath;
     @Value("${gateway.instruments.path}")
     private String instrumentsPath;
+    @Value("${gateway.roles.path}")
+    private String rolesPath;
     @Value("${gateway.events.path}")
     private String eventsPath;
     @Value("${gateway.scores.path}")
@@ -33,7 +35,7 @@ public class GatewayRoutesConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 // USERS
-                .route("users", r -> r.path(usersPath, instrumentsPath)
+                .route("users", r -> r.path(usersPath, instrumentsPath, rolesPath)
                         .filters(f -> f.removeRequestHeader("Cookie"))
                         .uri(usersUri))
                 // EVENTS

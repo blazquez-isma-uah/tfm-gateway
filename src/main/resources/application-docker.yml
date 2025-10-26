@@ -57,6 +57,8 @@ logging:
 gateway:
   instruments:
     path: ${GATEWAY_INSTRUMENTS_PATH}
+  roles:
+    path: ${GATEWAY_ROLES_PATH}
   users:
     uri: ${GATEWAY_USERS_URI}
     path: ${GATEWAY_USERS_PATH}

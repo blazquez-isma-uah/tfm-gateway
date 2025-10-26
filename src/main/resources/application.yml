@@ -56,6 +56,8 @@ logging:
 gateway:
   instruments:
     path: /api/instruments/**
+  roles:
+    path: /api/roles/**
   users:
     uri: http://localhost:8081
     path: /api/users/**
