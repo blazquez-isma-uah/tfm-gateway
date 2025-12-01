@@ -13,34 +13,30 @@ spring:
           # Apunta al JWKS del Keycloak dentro del entorno dockerizado
           jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI}
 
-#  cloud:
-#    gateway:
-#      server:
-#        webflux:
-#          default-filters:
-#            # Añadiremos filtros propios en el siguiente paso
-#            - RemoveRequestHeader=Cookie
-#          routes:
-#            - id: users
-#              uri: ${GATEWAY_USERS_URI}
-#              predicates:
-#                - Path=${GATEWAY_USERS_PATH}
-#                - Path=${GATEWAY_INSTRUMENTS_PATH}
-#
-#            - id: events
-#              uri: ${GATEWAY_EVENTS_URI}
-#              predicates:
-#                - Path=${GATEWAY_EVENTS_PATH}
-#
-#            - id: scores
-#              uri: ${GATEWAY_SCORES_URI}
-#              predicates:
-#                - Path=${GATEWAY_SCORES_PATH}
-#
-#            - id: surveys
-#              uri: ${GATEWAY_SURVEYS_URI}
-#              predicates:
-#                - Path=${GATEWAY_SURVEYS_PATH}
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                          allowedOrigins:
+                            - "http://localhost:5173"
+                          allowedMethods:
+                            - GET
+                            - POST
+                            - PUT
+                            - DELETE
+                            - OPTIONS
+                          allowedHeaders:
+                            - Authorization
+                            - Content-Type
+                            - Accept
+                            - Origin
+                          exposedHeaders:
+                            - Location
+                          allowCredentials: true
 
 management:
   endpoints:
