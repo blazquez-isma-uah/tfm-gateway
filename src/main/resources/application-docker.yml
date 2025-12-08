@@ -43,6 +43,14 @@ management:
     web:
       exposure:
         include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  server:
+    port: ${MANAGEMENT_PORT:8081}
+    address: 127.0.0.1
 
 logging:
   level:
