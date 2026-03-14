@@ -25,30 +25,35 @@ public class LoggingTraceFilter implements GlobalFilter, Ordered {
 
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String traceId = headers.getFirst("X-Request-Id");
+        ServerWebExchange finalExchange;
+
         if (traceId == null || traceId.isBlank()) {
             traceId = UUID.randomUUID().toString();
-            exchange = exchange.mutate()
-                    .request(r -> r.header("X-Request-Id", traceId))
+            final String finalTraceId = traceId;
+            finalExchange = exchange.mutate()
+                    .request(r -> r.header("X-Request-Id", finalTraceId))
                     .build();
+        } else {
+            finalExchange = exchange;
         }
 
-        String method = exchange.getRequest().getMethod().name();
-        String path = exchange.getRequest().getURI().getPath();
-        String authUser = exchange.getRequest().getHeaders().getFirst("X-User-Id");
+        String method = finalExchange.getRequest().getMethod().name();
+        String path = finalExchange.getRequest().getURI().getPath();
+        String authUser = finalExchange.getRequest().getHeaders().getFirst("X-User-Id");
 
         log.debug("[LoggingTraceFilter] Incoming request: method={} path={} traceId={} user={}",
                 method, path, traceId, authUser != null ? authUser : "anonymous");
 
-        String finalTraceId = traceId;
-        return chain.filter(exchange).then(
+        final String finalTraceIdForLogging = traceId;
+        return chain.filter(finalExchange).then(
                 Mono.fromRunnable(() -> {
                     long duration = System.currentTimeMillis() - start;
-                    int statusCode = exchange.getResponse().getStatusCode() != null
-                            ? exchange.getResponse().getStatusCode().value()
+                    int statusCode = finalExchange.getResponse().getStatusCode() != null
+                            ? finalExchange.getResponse().getStatusCode().value()
                             : 0;
 
                     log.info("[LoggingTraceFilter] Completed: method={} path={} status={} duration={}ms traceId={}",
-                            method, path, statusCode, duration, finalTraceId);
+                            method, path, statusCode, duration, finalTraceIdForLogging);
                 })
         );
     }
