@@ -3,7 +3,6 @@ package com.tfm.bandas.gateway.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -28,8 +27,8 @@ public class LoggingTraceFilter implements GlobalFilter, Ordered {
         String traceId = headers.getFirst("X-Request-Id");
         if (traceId == null || traceId.isBlank()) {
             traceId = UUID.randomUUID().toString();
-            exchange.getRequest().mutate()
-                    .header("X-Request-Id", traceId)
+            exchange = exchange.mutate()
+                    .request(r -> r.header("X-Request-Id", traceId))
                     .build();
         }
 

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class IdentityPropagationFilter implements GlobalFilter, Ordered {
 
-    private static final Logger log = LoggerFactory.getLogger(LoggingTraceFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(IdentityPropagationFilter.class);
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain chain) {
@@ -36,18 +36,19 @@ public class IdentityPropagationFilter implements GlobalFilter, Ordered {
                             .map(GrantedAuthority::getAuthority)
                             .collect(Collectors.joining(","));
                     log.debug("[IdentityPropagationFilter] userRoles: {}", roles);
-                    exchange.getRequest().mutate()
-                            .header("X-User-Id", userId != null ? userId : "")
-                            .header("X-Roles", roles)
+
+                    ServerWebExchange newExchange = exchange.mutate()
+                            .request(r -> r.header("X-User-Id", userId != null ? userId : "")
+                                          .header("X-Roles", roles))
                             .build();
 
-                    return chain.filter(exchange);
+                    return chain.filter(newExchange);
                 })
                 .switchIfEmpty(chain.filter(exchange));
     }
 
     @Override
     public int getOrder() {
-        return 0; // después del LoggingTraceFilter
+        return 0; // se ejecuta después del LoggingTraceFilter (orden -1)
     }
 }
