@@ -7,34 +7,39 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
- * Convierte los roles de Keycloak (realm_access.roles) en authorities Spring (ROLE_XXX)
- * para entornos reactivos (WebFlux).
+ * Convierte los claims de roles/grupos del JWT en GrantedAuthority de Spring Security.
+ * Implementación reactiva (WebFlux) para Spring Cloud Gateway.
+ * <p>
+ * Soporta dos proveedores:
+ *   - Amazon Cognito (perfil aws):   claim "cognito:groups"
+ *   - Keycloak       (perfil local): claim "realm_access.roles"
  */
 @Component
 public class JwtAuthConverter implements Converter<Jwt, Flux<GrantedAuthority>> {
 
     @Override
     public Flux<GrantedAuthority> convert(Jwt jwt) {
-        Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
-        if (realmAccess == null || realmAccess.isEmpty()) {
-            return Flux.empty();
+        // ── Cognito (AWS) ─────────────────────────────────────────────────
+        List<String> cognitoGroups = jwt.getClaimAsStringList("cognito:groups");
+        if (cognitoGroups != null && !cognitoGroups.isEmpty()) {
+            return Flux.fromIterable(cognitoGroups)
+                    .filter(Objects::nonNull)
+                    .map(g -> new SimpleGrantedAuthority("ROLE_" + g.toUpperCase()));
         }
 
-        Object rolesObj = realmAccess.get("roles");
-        if (!(rolesObj instanceof Collection<?> roles)) {
-            return Flux.empty();
+        // ── Keycloak (local) ──────────────────────────────────────────────
+        var realmAccess = jwt.getClaimAsMap("realm_access");
+        if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> roles) {
+            return Flux.fromIterable(roles)
+                    .filter(Objects::nonNull)
+                    .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toString().toUpperCase()));
         }
 
-        Set<SimpleGrantedAuthority> authorities = roles.stream()
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                .collect(Collectors.toSet());
-
-        return Flux.fromIterable(authorities);
+        return Flux.empty();
     }
 }
